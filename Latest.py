@@ -1256,10 +1256,9 @@ class ScheduleScreen(Screen):
             self.create_table()
 
     def create_table(self):
-        # Create table with 7 columns (6 for schedule data + 1 for delete button)
         self.table = MDDataTable(
             use_pagination=True,
-            check=False,  # Remove checkboxes
+            check=False,
             column_data=[
                 ("Subject", dp(30)),
                 ("Building", dp(25)),
@@ -1267,29 +1266,26 @@ class ScheduleScreen(Screen):
                 ("Day", dp(20)),
                 ("Start", dp(20)),
                 ("End", dp(20)),
-                ("", dp(20)),  # Empty header for delete button column
+                ("", dp(20)),
             ],
             row_data=[],
             size_hint=(1, 0.45),
             pos_hint={"center_x": 0.5},
             rows_num=4,
         )
-        # Bind row press instead of check press
         self.table.bind(on_row_press=self.on_row_press)
         self.table_box.add_widget(self.table)
 
     def on_row_press(self, instance_table, instance_row):
-        # Calculate row and column indices
-        row_index = instance_row.index // 7  # 7 columns total
+        row_index = instance_row.index // 7
         col_index = instance_row.index % 7
 
-        # Check if the delete column (column 6) was clicked
         if col_index == 6 and row_index < len(self.table.row_data):
             row_data = self.table.row_data[row_index]
             self.show_delete_dialog(row_data, row_index)
 
     def show_delete_dialog(self, row_data, row_index):
-        # Extract schedule data (ignore the last column which is delete button)
+
         subject, building_name, room, day, time_start, time_end, _ = row_data
 
         self.dialog = MDDialog(
@@ -1311,16 +1307,13 @@ class ScheduleScreen(Screen):
 
     def delete_selected_schedule(self, row_index):
         if 0 <= row_index < len(self.table.row_data):
-            # Remove the schedule from table
             deleted_schedule = self.table.row_data.pop(row_index)
 
-            # Update the table display
             self.table.row_data = self.table.row_data.copy()
 
-            # Update map markers if map screen is showing that day
             map_screen = self.manager.get_screen("map")
             if hasattr(map_screen, 'current_day') and map_screen.current_day == deleted_schedule[
-                3]:  # Day is at index 3
+                3]:
                 map_screen.update_map_markers()
 
             Snackbar(text="Schedule deleted!").open()
@@ -1364,11 +1357,9 @@ class ScheduleScreen(Screen):
                 Snackbar(text=f"Room {room} not in {building_name}").open()
                 return
 
-            # Add schedule with "Delete" text in the last column
             self.table.row_data.append((subject, building_name, room, day, time_start, time_end, "Delete"))
             self.table.row_data = self.table.row_data.copy()
 
-            # Clear input fields
             self.ids.subject.text = ""
             self.ids.building.text = ""
             self.ids.room.text = ""
@@ -1380,7 +1371,6 @@ class ScheduleScreen(Screen):
         else:
             Snackbar(text="Fill all fields").open()
 
-    # Keep all other methods the same...
     def day_picker(self):
         day_field = self.ids.day
         menu_items = [
